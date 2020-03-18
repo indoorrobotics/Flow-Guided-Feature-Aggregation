@@ -89,7 +89,7 @@ def main():
     # get symbol
     pprint.pprint(cfg)
     cfg.symbol = 'resnet_v1_101_flownet_rfcn'
-    model = '/../model/rfcn_fgfa_flownet_vid'
+    model = '/../output/fgfa_rfcn/vis_drone/resnet_v1_101_flownet_vis_drone_rfcn_end2end_ohem/VID_train_vid/fgfa_rfcn_vid'
     all_frame_interval = cfg.TEST.KEY_FRAME_INTERVAL * 2 + 1
     max_per_image = cfg.TEST.max_per_image
     feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
@@ -111,7 +111,7 @@ def main():
 
     # load demo data
 
-    image_names = glob.glob(cur_path + '/../demo/ILSVRC2015_val_00007010/*.JPEG')
+    image_names = glob.glob('/data/VisDrone2019/Data/VID/train/uav0000013_00000_v/*')
     output_dir = cur_path + '/../demo/rfcn_fgfa/'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
