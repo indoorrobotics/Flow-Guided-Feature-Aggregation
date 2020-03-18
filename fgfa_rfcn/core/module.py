@@ -861,7 +861,9 @@ class MutableModule(BaseModule):
         save_optimizer_states : bool
             Whether to save optimizer states for continue training
         """
-        self._curr_module.save_checkpoint(prefix, epoch, save_optimizer_states)
+        if prefix %10 ==0:
+            print("About to save")
+            self._curr_module.save_checkpoint(prefix, epoch, save_optimizer_states)
 
     def init_optimizer(self, kvstore='local', optimizer='sgd',
                        optimizer_params=(('learning_rate', 0.01),), force_init=False):
