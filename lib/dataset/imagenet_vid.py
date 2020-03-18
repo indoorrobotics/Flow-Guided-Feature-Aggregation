@@ -40,25 +40,32 @@ class ImageNetVID(IMDB):
         self.motion_iou_path = motion_iou_path
         self.enable_detailed_eval = enable_detailed_eval
 
-        self.classes = ['__background__',  # always index 0
-                        'airplane', 'antelope', 'bear', 'bicycle',
-                        'bird', 'bus', 'car', 'cattle',
-                        'dog', 'domestic_cat', 'elephant', 'fox',
-                        'giant_panda', 'hamster', 'horse', 'lion',
-                        'lizard', 'monkey', 'motorcycle', 'rabbit',
-                        'red_panda', 'sheep', 'snake', 'squirrel',
-                        'tiger', 'train', 'turtle', 'watercraft',
-                        'whale', 'zebra']
-        self.classes_map = ['__background__',  # always index 0
-                        'n02691156', 'n02419796', 'n02131653', 'n02834778',
-                        'n01503061', 'n02924116', 'n02958343', 'n02402425',
-                        'n02084071', 'n02121808', 'n02503517', 'n02118333',
-                        'n02510455', 'n02342885', 'n02374451', 'n02129165',
-                        'n01674464', 'n02484322', 'n03790512', 'n02324045',
-                        'n02509815', 'n02411705', 'n01726692', 'n02355227',
-                        'n02129604', 'n04468005', 'n01662784', 'n04530566',
-                        'n02062744', 'n02391049']
 
+
+        # self.classes = ['__background__',  # always index 0
+        #                 'airplane', 'antelope', 'bear', 'bicycle',
+        #                 'bird', 'bus', 'car', 'cattle',
+        #                 'dog', 'domestic_cat', 'elephant', 'fox',
+        #                 'giant_panda', 'hamster', 'horse', 'lion',
+        #                 'lizard', 'monkey', 'motorcycle', 'rabbit',
+        #                 'red_panda', 'sheep', 'snake', 'squirrel',
+        #                 'tiger', 'train', 'turtle', 'watercraft',
+        #                 'whale', 'zebra']
+        # self.classes_map = ['__background__',  # always index 0
+        #                 'n02691156', 'n02419796', 'n02131653', 'n02834778',
+        #                 'n01503061', 'n02924116', 'n02958343', 'n02402425',
+        #                 'n02084071', 'n02121808', 'n02503517', 'n02118333',
+        #                 'n02510455', 'n02342885', 'n02374451', 'n02129165',
+        #                 'n01674464', 'n02484322', 'n03790512', 'n02324045',
+        #                 'n02509815', 'n02411705', 'n01726692', 'n02355227',
+        #                 'n02129604', 'n04468005', 'n01662784', 'n04530566',
+        #                 'n02062744', 'n02391049']
+
+        self.classes = ['__background__',  # always index 0
+                        "ignored regions", "pedestrian", "people", "bicycle",  "car", "van",  "truck",
+                        "tricycle", "awning-tricycle", "bus",  "motor", "others"]
+
+        self.classes_map = ['0.0', '1.0', '2.0', '3.0', '4.0', '5.0', '6.0', '7.0', '8.0', '9.0', '10.0', '11.0', '12.0']
         self.num_classes = len(self.classes)
         self.load_image_set_index()
         self.num_images = len(self.image_set_index)
@@ -77,8 +84,8 @@ class ImageNetVID(IMDB):
             self.image_set_index = [x[0] for x in lines]
             self.frame_id = [int(x[1]) for x in lines]
         else:
-            self.image_set_index = ['%s/%06d' % (x[0], int(x[2])) for x in lines]
-            self.pattern = [x[0]+'/%06d' for x in lines]
+            self.image_set_index = ['%s/%07d' % (x[0], int(x[2])) for x in lines]
+            self.pattern = [x[0]+'/%07d' for x in lines]
             self.frame_id = [int(x[1]) for x in lines]
             self.frame_seg_id = [int(x[2]) for x in lines]
             self.frame_seg_len = [int(x[3]) for x in lines]
@@ -91,9 +98,9 @@ class ImageNetVID(IMDB):
         :return: full path of this image
         """
         if self.det_vid == 'DET':
-            image_file = os.path.join(self.data_path, 'Data', 'DET', index + '.JPEG')
+            image_file = os.path.join(self.data_path, 'Data', 'DET', index + '.jpg')
         else:
-            image_file = os.path.join(self.data_path, 'Data', 'VID', index + '.JPEG')
+            image_file = os.path.join(self.data_path, 'Data', 'VID', index + '.jpg')
 
         # assert os.path.exists(image_file), 'Path does not exist: {}'.format(image_file)
         return image_file
@@ -104,7 +111,7 @@ class ImageNetVID(IMDB):
         :return: imdb[image_index]['boxes', 'gt_classes', 'gt_overlaps', 'flipped']
         """
         cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
-        if os.path.exists(cache_file):
+        if False: # os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
                 roidb = cPickle.load(fid)
             print '{} gt roidb loaded from {}'.format(self.name, cache_file)
