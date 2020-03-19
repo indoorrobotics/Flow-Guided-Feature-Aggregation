@@ -871,7 +871,7 @@ class MutableModule(BaseModule):
 
 
 
-        if prefix %10 ==0:
+        if epoch %10 ==0:
             print("About to save")
             self._curr_module.save_checkpoint(prefix, epoch, save_optimizer_states)
 
