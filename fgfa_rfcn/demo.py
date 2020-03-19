@@ -110,12 +110,10 @@ def main():
     num_classes = len(classes)
     # load demo data
 
-    dir_name = sys.argv[2]
-
-    image_names = glob.glob(dir_name + '/*')
+    image_names = glob.glob(args.input + '/*')
     image_names.sort()
 
-    output_dir = args.input
+    output_dir = "/data/output/"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
