@@ -99,20 +99,21 @@ def main():
     aggr_sym = aggr_sym_instance.get_aggregation_symbol(cfg)
 
     # set up class names
-    num_classes = 31
-    classes = ['__background__','airplane', 'antelope', 'bear', 'bicycle',
-               'bird', 'bus', 'car', 'cattle',
-               'dog', 'domestic_cat', 'elephant', 'fox',
-               'giant_panda', 'hamster', 'horse', 'lion',
-               'lizard', 'monkey', 'motorcycle', 'rabbit',
-               'red_panda', 'sheep', 'snake', 'squirrel',
-               'tiger', 'train', 'turtle', 'watercraft',
-               'whale', 'zebra']
 
+
+    classes = ['__background__',  # always index 0
+                    "ignored regions", "pedestrian", "people", "bicycle", "car", "van", "truck",
+                    "tricycle", "awning-tricycle", "bus", "motor", "others"]
+
+    num_classes = len(classes)
     # load demo data
 
-    image_names = glob.glob('/data/VisDrone2019/Data/VID/train/uav0000013_00000_v/*')
-    output_dir = cur_path + '/../demo/rfcn_fgfa/'
+    dir_name = sys.argv[2]
+
+    image_names = glob.glob(dir_name + '/*')
+    image_names.sort()
+
+    output_dir = "/data/output/"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
