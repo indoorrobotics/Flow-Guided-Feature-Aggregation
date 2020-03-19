@@ -865,7 +865,13 @@ class MutableModule(BaseModule):
         save_optimizer_states : bool
             Whether to save optimizer states for continue training
         """
-        if epoch %10 ==0:
+
+
+
+
+
+
+        if prefix %10 ==0:
             print("About to save")
             self._curr_module.save_checkpoint(prefix, epoch, save_optimizer_states)
 
