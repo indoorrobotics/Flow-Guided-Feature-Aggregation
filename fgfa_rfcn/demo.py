@@ -42,7 +42,9 @@ from nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Show Flow-Guided Feature Aggregation demo')
+    parser.add_argument("input", help="display input", type=str)
     args = parser.parse_args()
+
     return args
 
 args = parse_args()
@@ -113,7 +115,7 @@ def main():
     image_names = glob.glob(dir_name + '/*')
     image_names.sort()
 
-    output_dir = "/data/output/"
+    output_dir = args.input
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
