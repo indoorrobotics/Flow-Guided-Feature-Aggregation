@@ -9,7 +9,7 @@ from os.path import join
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-
+from glob import glob
 
 BNDBOX = "bndbox"
 
@@ -31,6 +31,8 @@ full_path = os.path.join(label_path, FILE_NAME)
 xml_dir = "/home/ron/Desktop/xmls"
 session_base_dir = "/media/ron/15GB"
 base_output =  xml_dir
+
+names = set()
 def make_dirs(base_output):
     os.makedirs(join(base_output, ANNOTATIONS))
     os.makedirs(join(base_output, ANNOTATIONS, VID))
@@ -85,6 +87,7 @@ def convert_to_xml(full_path, img_session_full_path, output_img, output_xml):
                 objects = []
                 for ob in js[file_name]:
                     name = ob["label_id"].split(":")[0]
+                    names.add(name)
                     box = ob["box"]
                     obj = {"name":name, BNDBOX: {"xmin": box[0], "ymin": box[1],"xmax": box[2] + box[0] ,"ymax": box[1] + box[3]}}
                     objects.append(obj)
@@ -127,6 +130,23 @@ def create_xml(file_name, size_, objects, output_xml_file):
     with open(output_xml_file, "w") as f:
         f.write(xmlstr)
 
+def create_image_set(data_dir, interval = 15):
+    image_sets = "ImageSets"
+    if not os.path.exists(join(data_dir, image_sets)):
+        os.makedirs(join(data_dir, image_sets))
+
+    with open(join(data_dir, image_sets, "VID_train_" + str(interval)  + "frames.txt"), "w") as f:
+        for dire in glob(join(data_dir, ANNOTATIONS, VID, TRAIN, "*", "*")):
+            num_of_images = len(os.listdir(dire))
+            jump_rate = num_of_images/interval
+            for i in list(range(0,num_of_images, jump_rate)):
+                line = '%s %s %s %s\n' % (dire.replace(join(join(data_dir, ANNOTATIONS, VID)) + "/", ""), '1', str(i), str(num_of_images))
+                f.write(line)
+
+
+
+
+
 def plot_image(image_path, xml_path):
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -156,10 +176,10 @@ def plot_image(image_path, xml_path):
     plt.show()
 
 if __name__ == '__main__':
-
+    create_image_set("/home/ron/Desktop/xmls")
     #read_labels_dir(label_path)
-    idx = 109
-    loction = "clark-center-2019-02-28_0"
-    xml_path = join("/home/ron/Desktop/xmls/Annotations/VID/train/image_2/", loction, str(idx).zfill(6) + ".xml")
-    img_path = join("/media/ron/15GB/image_2/" ,loction, str(idx).zfill(6) + ".jpg")
-    plot_image(img_path, xml_path)
+    #idx = 109
+    #loction = "clark-center-2019-02-28_0"
+    #xml_path = join("/home/ron/Desktop/xmls/Annotations/VID/train/image_2/", loction, str(idx).zfill(6) + ".xml")
+    #img_path = join("/media/ron/15GB/image_2/" ,loction, str(idx).zfill(6) + ".jpg")
+    #plot_image(img_path, xml_path)
