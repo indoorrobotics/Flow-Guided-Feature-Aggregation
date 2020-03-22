@@ -157,9 +157,6 @@ class Module(BaseModule):
         save_optimizer_states : bool
             Whether to save optimizer states for continue training
         """
-        if epoch %10 !=0:
-            print("skip About to save " , prefix)
-            return 
 
         self._symbol.save('%s-symbol.json'%prefix)
         param_name = '%s-%04d.params' % (prefix, epoch)
@@ -866,14 +863,7 @@ class MutableModule(BaseModule):
             Whether to save optimizer states for continue training
         """
 
-
-
-
-
-
-        if epoch %10 ==0:
-            print("About to save")
-            self._curr_module.save_checkpoint(prefix, epoch, save_optimizer_states)
+        self._curr_module.save_checkpoint(prefix, epoch, save_optimizer_states)
 
 
     def init_optimizer(self, kvstore='local', optimizer='sgd',
