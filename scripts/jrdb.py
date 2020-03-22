@@ -77,15 +77,20 @@ def read_labels_dir(label_path):
 def convert_to_xml(full_path, img_session_full_path, output_img, output_xml):
     with open(full_path) as f:
         js = json.loads(f.read())['labels']
-        file_names = list(js.keys())
-        file_names.sort()
-        for file_name in file_names:
+        xml_files = list(js.keys())
+        xml_files.sort()
+        if not os.path.exists(img_session_full_path):
+            print("Can't find " + img_session_full_path)
+            return
+        images = os.listdir(img_session_full_path)
+        images.sort()
+        for file_name in images:
             image_path = os.path.join(img_session_full_path, file_name)
             if os.path.exists(image_path):
                 width, height = Image.open(image_path).size
                 file_na = file_name.replace(".jpg", "")
                 objects = []
-                for ob in js[file_name]:
+                for ob in js.get(file_name, []):
                     name = ob["label_id"].split(":")[0]
                     names.add(name)
                     box = ob["box"]
@@ -176,8 +181,8 @@ def plot_image(image_path, xml_path):
     plt.show()
 
 if __name__ == '__main__':
-    create_image_set("/home/ron/Desktop/xmls")
-    #read_labels_dir(label_path)
+    #create_image_set("/home/ron/Desktop/xmls")
+    read_labels_dir(label_path)
     #idx = 109
     #loction = "clark-center-2019-02-28_0"
     #xml_path = join("/home/ron/Desktop/xmls/Annotations/VID/train/image_2/", loction, str(idx).zfill(6) + ".xml")
