@@ -91,7 +91,8 @@ def main():
     # get symbol
     pprint.pprint(cfg)
     cfg.symbol = 'resnet_v1_101_flownet_rfcn'
-    model = '/../output/fgfa_rfcn/vis_drone/resnet_v1_101_flownet_vis_drone_rfcn_end2end_ohem/VID_train_vid/fgfa_rfcn_vid'
+    model = '/data/output/fgfa_rfcn/vis_drone/resnet_v1_101_flownet_vis_drone_rfcn_end2end_ohem/VID_train_vid/fgfa_rfcn_vid'
+    model = '/data2/output/fgfa_rfcn/jrdb/resnet_v1_101_flownet_jrdb/VID_train_15frames_cut/fgfa_rfcn_vid'
     all_frame_interval = cfg.TEST.KEY_FRAME_INTERVAL * 2 + 1
     max_per_image = cfg.TEST.max_per_image
     feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
@@ -110,10 +111,13 @@ def main():
     num_classes = len(classes)
     # load demo data
 
+    classes = ['__background__', 'p']
+    num_classes = len(classes)
+
     image_names = glob.glob(args.input + '/*')
     image_names.sort()
-
-    output_dir = "/data/output/"
+    print("num of images", len(image_names))
+    output_dir = "/data2/demo_new2/"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -148,8 +152,9 @@ def main():
     provide_data = [[(k, v.shape) for k, v in zip(data_names, data[i])] for i in xrange(len(data))]
     provide_label = [None for _ in xrange(len(data))]
 
-    arg_params, aux_params = load_param(cur_path + model, 0, process=True)
-
+    arg_params, aux_params = load_param(model, 190, process=True)
+    print arg_params
+    print aux_params
     feat_predictors = Predictor(feat_sym, data_names, label_names,
                           context=[mx.gpu(0)], max_data_shapes=max_data_shape,
                           provide_data=provide_data, provide_label=provide_label,
@@ -179,7 +184,7 @@ def main():
 
     vis = False
     file_idx = 0
-    thresh = 1e-3
+    thresh = 0.4
     for idx, element in enumerate(data):
 
         data_batch = mx.io.DataBatch(data=[element], label=[], pad=0, index=idx,

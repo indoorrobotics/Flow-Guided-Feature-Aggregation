@@ -66,6 +66,11 @@ class ImageNetVID(IMDB):
                         "tricycle", "awning-tricycle", "bus",  "motor", "others"]
 
         self.classes_map = ['0.0', '1.0', '2.0', '3.0', '4.0', '5.0', '6.0', '7.0', '8.0', '9.0', '10.0', '11.0', '12.0']
+
+        self.classes = ['__background__',  "pedestrian"]
+
+        self.classes_map = ['0.0', 'pedestrian']
+
         self.num_classes = len(self.classes)
         self.load_image_set_index()
         self.num_images = len(self.image_set_index)
@@ -84,8 +89,8 @@ class ImageNetVID(IMDB):
             self.image_set_index = [x[0] for x in lines]
             self.frame_id = [int(x[1]) for x in lines]
         else:
-            self.image_set_index = ['%s/%07d' % (x[0], int(x[2])) for x in lines]
-            self.pattern = [x[0]+'/%07d' for x in lines]
+            self.image_set_index = ['%s/%06d' % (x[0], int(x[2])) for x in lines]
+            self.pattern = [x[0]+'/%06d' for x in lines]
             self.frame_id = [int(x[1]) for x in lines]
             self.frame_seg_id = [int(x[2]) for x in lines]
             self.frame_seg_len = [int(x[3]) for x in lines]
