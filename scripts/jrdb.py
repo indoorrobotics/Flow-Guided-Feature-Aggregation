@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from glob import glob
+import random
 
 BNDBOX = "bndbox"
 
@@ -135,7 +136,7 @@ def create_xml(file_name, size_, objects, output_xml_file):
     with open(output_xml_file, "w") as f:
         f.write(xmlstr)
 
-def create_image_set(data_dir, interval = 15):
+def create_image_set_train(data_dir, interval = 15):
     image_sets = "ImageSets"
     if not os.path.exists(join(data_dir, image_sets)):
         os.makedirs(join(data_dir, image_sets))
@@ -149,6 +150,20 @@ def create_image_set(data_dir, interval = 15):
                 f.write(line)
 
 
+def create_image_set_test(data_dir, max_data = 100):
+    image_sets = "ImageSets"
+    if not os.path.exists(join(data_dir, image_sets)):
+        os.makedirs(join(data_dir, image_sets))
+
+    with open(join(data_dir, image_sets, "VID_val_frames.txt"), "w") as f:
+        images = glob(join(data_dir, ANNOTATIONS, VID, TRAIN, "*", "*", "*"))
+        random.shuffle(images)
+        images = images[: max_data]
+        print "total images %d" % len(images)
+        for dire in images:
+            file_name = dire.replace(join(join(data_dir, ANNOTATIONS, VID)) + "/", "").replace(".xml", "")
+            line = '%s %s\n' % (file_name, '1')
+            f.write(line)
 
 
 
