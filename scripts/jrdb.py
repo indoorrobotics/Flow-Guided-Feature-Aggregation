@@ -68,8 +68,12 @@ def read_labels_dir(label_path):
                                             sesion_file_name)
         output_xml_session_full_path = join(base_output, ANNOTATIONS, VID, TRAIN, IMAGE_ + session_directory,
                                             sesion_file_name)
-        os.makedirs(output_img_session_full_path)
-        os.makedirs(output_xml_session_full_path)
+
+        if not os.path.exists(output_img_session_full_path):
+            os.makedirs(output_img_session_full_path)
+        if not os.path.exists(output_xml_session_full_path):
+            os.makedirs(output_xml_session_full_path)
+
         json_path = join(label_path, label_file_path)
 
         convert_to_xml(json_path, input_img_session_full_path, output_img_session_full_path, output_xml_session_full_path)
