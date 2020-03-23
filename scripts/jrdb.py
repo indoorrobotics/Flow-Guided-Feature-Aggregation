@@ -7,8 +7,6 @@ import re
 from PIL import Image
 from os.path import join
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from glob import glob
 import random
 
@@ -26,14 +24,13 @@ DATA = "Data"
 
 ANNOTATIONS = "Annotations"
 
-label_path = "/home/ron/Desktop/labels/labels_2d"
-FILE_NAME = "stlc-111-2019-04-19_0_image6.json"
-full_path = os.path.join(label_path, FILE_NAME)
-xml_dir = "/home/ron/Desktop/xmls"
-session_base_dir = "/media/ron/15GB"
-base_output =  xml_dir
 
+label_path = "/data2/cvgl/group/jrdb/data/train_dataset/labels/labels_2d"
+xml_dir = "/data2/xmls"
+session_base_dir = "/data2/xmls/Data/VID/train/"
+base_output = xml_dir
 names = set()
+
 def make_dirs(base_output):
     os.makedirs(join(base_output, ANNOTATIONS))
     os.makedirs(join(base_output, ANNOTATIONS, VID))
@@ -161,6 +158,7 @@ def create_image_set_test(data_dir, max_data = 100):
 
     with open(join(data_dir, image_sets, "VID_val_frames.txt"), "w") as f:
         images = glob(join(data_dir, ANNOTATIONS, VID, TRAIN, "*", "*", "*"))
+        print(join(data_dir, ANNOTATIONS, VID, TRAIN, "*", "*", "*"))
         random.shuffle(images)
         images = images[: max_data]
         print "total images %d" % len(images)
@@ -172,6 +170,8 @@ def create_image_set_test(data_dir, max_data = 100):
 
 
 def plot_image(image_path, xml_path):
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
     tree = ET.parse(xml_path)
     root = tree.getroot()
     im = np.array(Image.open(image_path))
@@ -200,8 +200,9 @@ def plot_image(image_path, xml_path):
     plt.show()
 
 if __name__ == '__main__':
+    create_image_set_test(xml_dir)
     #create_image_set("/home/ron/Desktop/xmls")
-    read_labels_dir(label_path)
+    #read_labels_dir(label_path)
     #idx = 109
     #loction = "clark-center-2019-02-28_0"
     #xml_path = join("/home/ron/Desktop/xmls/Annotations/VID/train/image_2/", loction, str(idx).zfill(6) + ".xml")
