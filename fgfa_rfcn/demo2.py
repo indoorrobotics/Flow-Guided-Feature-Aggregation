@@ -43,9 +43,9 @@ from nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
 def parse_args():
     parser = argparse.ArgumentParser(description='Show Flow-Guided Feature Aggregation demo')
     parser.add_argument("input", help="display input", type=str)
-    parser.add_argument("--epoc", default=30)
-    parser.add_argument("--threshold", default=0.5)
-    parser.add_argument("--dataset", default="jrdb")
+    parser.add_argument("--epoc", default=30, type=int)
+    parser.add_argument("--threshold", default=0.5, type=float)
+    parser.add_argument("--dataset", default="jrdb_real")
     args = parser.parse_args()
 
     return args
@@ -87,14 +87,15 @@ def process_pred_result(classes, pred_result, num_classes, thresh, cfg, nms, all
 
 def save_image(output_dir, count, out_im):
     filename = str(count) + '.JPEG'
-    cv2.imwrite(output_dir + filename, out_im)
+    print("About to save", os.path.join(output_dir, filename)) 
+    cv2.imwrite(os.path.join(output_dir, filename), out_im)
 
 
 def main():
     # get symbol
     pprint.pprint(cfg)
     cfg.symbol = 'resnet_v1_101_flownet_rfcn'
-    model = '/data2/output/fgfa_rfcn/jrdb/resnet_v1_101_flownet_jrdb/VID_train_15frames_cut/fgfa_rfcn_vid'
+    model = '/data2/output/fgfa_rfcn/jrdb/resnet_v1_101_flownet_jrdb/VID_train_15frames/fgfa_rfcn_vid'
     all_frame_interval = cfg.TEST.KEY_FRAME_INTERVAL * 2 + 1
     max_per_image = cfg.TEST.max_per_image
     feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
@@ -113,7 +114,8 @@ def main():
     print("num of images", len(image_names))
     #line = '%s %s %s %s\n' % (dire.replace(join(join(data_dir, ANNOTATIONS, VID)) + "/", ""), '1', str(i), str(num_of_images))
     output_dir_tmp = '%s_%s_epoc_%d' % (args.dataset, os.path.basename(args.input), args.epoc)
-    output_dir = os.path.join("data2", "output", output_dir_tmp)
+    output_dir = os.path.join("/data2", "output", output_dir_tmp)
+    print(output_dir)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
