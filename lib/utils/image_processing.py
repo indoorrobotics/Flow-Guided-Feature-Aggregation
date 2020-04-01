@@ -89,3 +89,29 @@ def tensor_vstack(tensor_list, pad=0):
         tensor_list[ind] = np.lib.pad(tensor, pad_shape, 'constant', constant_values=pad)
     all_tensor = np.vstack(tensor_list)
     return all_tensor
+
+
+def create_video_from_images(dest_dir, output, max_len = None):
+    import os
+    images = os.listdir(dest_dir)
+    images = list(filter(lambda x: x.endswith("png"), images))
+    images.sort()
+    if max_len is not None:
+        images = images[:max_len]
+
+
+    images = list(map(lambda x: os.path.join(dest_dir,x), images))
+    img1 = cv2.imread(images[0])
+    height, width, layers = img1.shape
+    size = (width, height)
+    #video = cv2.VideoWriter(output, -1, 1, (width, height))
+    fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+    out = cv2.VideoWriter(output, fourcc, 15, size)
+    for img_path in images:
+        print("About to write ",  img_path)
+        out.write(cv2.imread(img_path))
+
+    out.release()
+    print "Done"
+
+#create_video_from_images("/media/indoordesk/653ce34c-0c14-4427-8029-be7afe6d1989/video/267d2d50-6858-11ea-8c18-77de8419b32c_front", "/home/indoordesk/Desktop/a.avi", 200)

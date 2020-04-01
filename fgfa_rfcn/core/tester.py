@@ -385,7 +385,6 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
             res = [res.get() for res in multiple_results]
         info_str = imdb.evaluate_detections_multiprocess(res)
 
-
     else :
         if gpu_num == 1:
             res = [pred_eval(0, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
@@ -414,6 +413,8 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
         info_str = imdb.do_python_eval_gen(gpu_num)
     if logger:
         logger.info('evaluate detections: \n{}'.format(info_str))
+
+    return info_str
 
 
 
@@ -462,14 +463,17 @@ def draw_all_detection(im_array, detections, class_names, scale, cfg, threshold=
     """
     import cv2
     import random
-    color_white = (255, 255, 255)
+#    color_white = (255, 255, 255)
+    color_white = (0, 0, 0)
+
     im = image.transform_inverse(im_array, cfg.network.PIXEL_MEANS)
     # change to bgr
     im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
     for j, name in enumerate(class_names):
         if name == '__background__':
             continue
-        color = (random.randint(0, 256), random.randint(0, 256), random.randint(0, 256))  # generate a random color
+        #color = (random.randint(0, 256), random.randint(0, 256), random.randint(0, 256))  # generate a random color
+        color = (255, 255, 0)
         dets = detections[j]
         for det in dets:
             bbox = det[:4] * scale

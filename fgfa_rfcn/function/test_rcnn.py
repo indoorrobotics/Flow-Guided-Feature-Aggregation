@@ -87,4 +87,4 @@ def test_rcnn(cfg, dataset, image_set, root_path, dataset_path, motion_iou_path,
     aggr_predictors = [get_predictor(aggr_sym, aggr_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
 
     # start detection
-    pred_eval_multiprocess(gpu_num, feat_predictors, aggr_predictors, test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
+    return pred_eval_multiprocess(gpu_num, feat_predictors, aggr_predictors, test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)

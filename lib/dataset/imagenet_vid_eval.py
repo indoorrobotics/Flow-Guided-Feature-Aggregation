@@ -13,6 +13,11 @@ import numpy as np
 import os
 import cPickle
 
+from lib.metric.BoundingBox import BoundingBox
+from lib.metric.BoundingBoxes import BoundingBoxes
+from lib.metric.Evaluator import Evaluator
+from lib.metric.utils import BBType, CoordinatesType, BBFormat, MethodAveragePrecision
+
 
 def parse_vid_rec(filename, classhash, img_ids, defaultIOUthr=0.5, pixelTolerance=10):
     """
@@ -135,7 +140,7 @@ def vid_eval(multifiles, detpath, annopath, imageset_file, classname_map, annoca
     obj_bboxes_cell = [None] * num_imgs
     start_i = 0
     id = img_ids[0]
-    for i in range(0, len(img_ids)):
+    for i in range(0, len(img_ids)): # todo check this if ron
         if i == len(img_ids)-1 or img_ids[i+1] != id:
             conf = obj_confs[start_i:i+1]
             label = obj_labels[start_i:i+1]
@@ -223,3 +228,138 @@ def vid_eval(multifiles, detpath, annopath, imageset_file, classname_map, annoca
         ap[c] = vid_ap(rec, prec)
     ap = ap[1:]
     return ap
+
+def createBoundingBoxes_gt(recs):
+    allBoundingBoxes = BoundingBoxes()
+    for rec in recs:
+        id = rec['img_ids']
+        gt_labels = rec['label']
+        gt_bboxes = rec['bbox']
+        gt_thr = rec['thr']
+        num_obj = 0 if gt_labels is None else len(gt_labels)
+
+        for j in range(0,num_obj):
+            #bb = gt_labels[j]
+            bb = BoundingBox(
+                id,
+                gt_labels[j],
+                gt_bboxes[j][0],
+                gt_bboxes[j][1],
+                gt_bboxes[j][2],
+                gt_bboxes[j][3],
+                CoordinatesType.Absolute,
+                None,
+                BBType.GroundTruth,
+                format=BBFormat.XYX2Y2)
+            #print("Add bb gt, img_id", id, "obj_label",  gt_labels[j], "obj_bbox", gt_bboxes[j], "lenbb", len(allBoundingBoxes._boundingBoxes))
+            allBoundingBoxes.addBoundingBox(bb)
+            #with open(os.path.join("/home/indoordesk/PycharmProjects/Object-Detection-Metrics/groundtruths_rel", str(id).zfill(6) + ".txt"), "a") as f:
+            #    f.write("person %s %s %s %s \n" % (gt_bboxes[j][0], gt_bboxes[j][1], gt_bboxes[j][2], gt_bboxes[j][3]))
+
+
+    return allBoundingBoxes
+
+def createBoundingBoxes_pred(allBoundingBoxes, img_ids, obj_labels, obj_confs, obj_bboxes):
+    for img_id, obj_label, obj_conf, obj_bbox in zip(img_ids, obj_labels, obj_confs, obj_bboxes):
+        bb = BoundingBox(
+            img_id,
+            obj_label,
+            obj_bbox[0],
+            obj_bbox[1],
+            obj_bbox[2],
+            obj_bbox[3],
+            CoordinatesType.Absolute,
+            None,
+            BBType.Detected,
+            obj_conf,
+            format=BBFormat.XYX2Y2)
+        allBoundingBoxes.addBoundingBox(bb)
+        #print("Add bb detected, img_id", img_id, "obj_label", obj_label, "obj_bbox", obj_bbox, "obj_conf", obj_conf)
+        #with open(os.path.join("/home/indoordesk/PycharmProjects/Object-Detection-Metrics/detections_rel",
+        #                       str(img_id).zfill(6) + ".txt"), "a") as f:
+        #    f.write("person %s %s %s %s %s \n" % (obj_conf, obj_bbox[0], obj_bbox[1], obj_bbox[2], obj_bbox[3]))
+    return allBoundingBoxes
+
+def vid_eval2(multifiles, detpath, annopath, imageset_file, classname_map, annocache, ovthresh=0.5):
+    """
+    imagenet vid evaluation
+    :param detpath: detection results detpath.format(classname)
+    :param annopath: annotations annopath.format(classname)
+    :param imageset_file: text file containing list of images
+    :param annocache: caching annotations
+    :param ovthresh: overlap threshold
+    :return: rec, prec, ap
+    """
+    with open(imageset_file, 'r') as f:
+            lines = [x.strip().split(' ') for x in f.readlines()]
+    img_basenames = [x[0] for x in lines]
+    gt_img_ids = [int(x[1]) for x in lines]
+    classhash = dict(zip(classname_map, range(0,len(classname_map))))
+
+    # load annotations from cache
+    if not os.path.isfile(annocache):
+        recs = []
+        for ind, image_filename in enumerate(img_basenames):
+            recs.append(parse_vid_rec(annopath.format('VID/' + image_filename), classhash, gt_img_ids[ind]))
+            if ind % 100 == 0:
+                print 'reading annotations for {:d}/{:d}'.format(ind + 1, len(img_basenames))
+        print 'saving annotations cache to {:s}'.format(annocache)
+        with open(annocache, 'wb') as f:
+            cPickle.dump(recs, f, protocol=cPickle.HIGHEST_PROTOCOL)
+    else:
+        with open(annocache, 'rb') as f:
+            recs = cPickle.load(f)
+
+    bb_gt = createBoundingBoxes_gt(recs)
+
+    # extract objects in :param classname:
+    npos = np.zeros(len(classname_map))
+    for rec in recs:
+        rec_labels = rec['label']
+        for x in rec_labels:
+            npos[x] += 1
+
+    # read detections
+    splitlines = []
+    if (multifiles == False):
+        with open(detpath, 'r') as f:
+            lines = f.readlines()
+        splitlines = [x.strip().split(' ') for x in lines]
+    else:
+        for det in detpath:
+            with open(det, 'r') as f:
+                lines = f.readlines()
+            splitlines += [x.strip().split(' ') for x in lines]
+
+    img_ids = np.array([int(x[0]) for x in splitlines])
+    obj_labels = np.array([int(x[1]) for x in splitlines])
+    obj_confs = np.array([float(x[2]) for x in splitlines])
+    obj_bboxes = np.array([[float(z) for z in x[3:]] for x in splitlines])
+
+    # filter_index = []
+    # for i, score in enumerate(obj_confs):
+    #     if score > ovthresh:
+    #         filter_index.append(i)
+    #
+    # img_ids = img_ids[filter_index]
+    # obj_labels = obj_labels[filter_index]
+    # obj_confs = obj_confs[filter_index]
+    # obj_bboxes = obj_bboxes[filter_index]
+
+    allBoundingBoxes = createBoundingBoxes_pred(bb_gt, img_ids, obj_labels, obj_confs, obj_bboxes)
+    evaluator = Evaluator()
+
+
+    # Plot Precision x Recall curve
+    detections = evaluator.PlotPrecisionRecallCurve(
+        allBoundingBoxes,  # Object containing all bounding boxes (ground truths and detections)
+        IOUThreshold=0.5,  # IOU threshold
+        method=MethodAveragePrecision.EveryPointInterpolation,
+        showAP=True,  # Show Average Precision in the title of the plot
+        showInterpolatedPrecision=False,  # Don't plot the interpolated precision curve
+        savePath="/tmp",
+        showGraphic=False)
+
+    aps = list(map(lambda x: x["AP"], detections))
+    return aps
+

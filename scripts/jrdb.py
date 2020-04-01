@@ -200,9 +200,9 @@ def plot_image(image_path, xml_path):
     plt.show()
 
 if __name__ == '__main__':
-    create_image_set_test(xml_dir)
+    #create_image_set_test(xml_dir)
     #create_image_set("/home/ron/Desktop/xmls")
-    #read_labels_dir(label_path)
+    read_labels_dir(label_path)
     #idx = 109
     #loction = "clark-center-2019-02-28_0"
     #xml_path = join("/home/ron/Desktop/xmls/Annotations/VID/train/image_2/", loction, str(idx).zfill(6) + ".xml")
