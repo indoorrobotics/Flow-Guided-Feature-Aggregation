@@ -60,19 +60,26 @@ def main():
     for epoc in range(1, 30):
 
         maps = []
-        logger.info("About to test with images:" + file_name)
-        print ("About to test with images:" + file_name)
+
         #for epoc in range(1, 30):
         for file_name in os.listdir(sets):
-            if "_val" in file_name:
+            if "_eval" in file_name:
                 continue
 
-            res = test_rcnn(config, config.dataset.dataset, file_name.replace(".txt", ""), config.dataset.root_path, config.dataset.dataset_path, config.dataset.motion_iou_path,
-                      ctx, join(final_output_path, '..', '_'.join([iset for iset in config.dataset.image_set.split('+')]), config.TRAIN.model_prefix), epoc,
-                      args.vis, args.ignore_cache, args.shuffle, config.TEST.HAS_RPN, config.dataset.proposal, args.thresh, logger=logger, output_path=final_output_path,
-                      enable_detailed_eval=config.dataset.enable_detailed_eval)
-            with open(join(output_dir, file_name), "a") as f:
-                f.write('epoc: %s res: %s \n' % (epoc, res))
+
+            logger.info("About to test with images:" + file_name)
+            print ("About to test with images:" + file_name)
+            try:
+                res = test_rcnn(config, config.dataset.dataset, file_name.replace(".txt", ""), config.dataset.root_path, config.dataset.dataset_path, config.dataset.motion_iou_path,
+                          ctx, join(final_output_path, '..', '_'.join([iset for iset in config.dataset.image_set.split('+')]), config.TRAIN.model_prefix), epoc,
+                          args.vis, args.ignore_cache, args.shuffle, config.TEST.HAS_RPN, config.dataset.proposal, args.thresh, logger=logger, output_path=final_output_path,
+                          enable_detailed_eval=config.dataset.enable_detailed_eval)
+                with open(join(output_dir, file_name), "a") as f:
+                    f.write('epoc: %s res: %s \n' % (epoc, res))
+            except Exception as e:
+                logger.error(e)
+                print e
+
         print maps
 
 if __name__ == '__main__':
