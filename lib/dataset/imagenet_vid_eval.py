@@ -13,10 +13,10 @@ import numpy as np
 import os
 import cPickle
 
-from lib.metric.BoundingBox import BoundingBox
-from lib.metric.BoundingBoxes import BoundingBoxes
-from lib.metric.Evaluator import Evaluator
-from lib.metric.utils import BBType, CoordinatesType, BBFormat, MethodAveragePrecision
+from metric.BoundingBox import BoundingBox
+from metric.BoundingBoxes import BoundingBoxes
+from metric.Evaluator import Evaluator
+from metric.utils import BBType, CoordinatesType, BBFormat, MethodAveragePrecision
 
 
 def parse_vid_rec(filename, classhash, img_ids, defaultIOUthr=0.5, pixelTolerance=10):

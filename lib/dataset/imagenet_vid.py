@@ -354,7 +354,7 @@ class ImageNetVID(IMDB):
         annopath = os.path.join(self.data_path, 'Annotations', '{0!s}.xml')
         imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '_eval.txt')
         annocache = os.path.join(self.cache_path, self.name + '_annotations.pkl')
-
+        imageset_file = self.write_eval_txt()
         filename = self.get_result_file_template().format('all')
 
         ap = vid_eval2(False, filename, annopath, imageset_file, self.classes_map, annocache, ovthresh=-0.1)
@@ -365,7 +365,7 @@ class ImageNetVID(IMDB):
             info_str += 'AP for {} = {:.4f}\n'.format(cls, ap[cls_ind-1])
         print('Mean AP@0.5 = {:.4f}'.format(np.mean(ap)))
         info_str += 'Mean AP@0.5 = {:.4f}\n\n'.format(np.mean(ap))
-        return info_str
+        return ap
 
     def do_python_eval_gen(self, gpu_number=None):
         """
@@ -374,14 +374,11 @@ class ImageNetVID(IMDB):
         """
         info_str = ''
         annopath = os.path.join(self.data_path, 'Annotations', '{0!s}.xml')
-        imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '_eval.txt')
+
         annocache = os.path.join(self.cache_path, self.name + '_annotations.pkl')
 
-        with open(imageset_file, 'w') as f:
-            for i in range(len(self.pattern)):
-                for j in range(self.frame_seg_len[i]):
-                    f.write((self.pattern[i] % (self.frame_seg_id[i] + j)) + ' ' + str(self.frame_id[i] + j) + '\n')
-                    
+        imageset_file = self.write_eval_txt()
+
         if gpu_number != None:
             filenames = []
             for i in range(gpu_number):
@@ -420,3 +417,11 @@ class ImageNetVID(IMDB):
                     [ap[motion_index][area_index][i] for i in range(len(ap[motion_index][area_index])) if
                      ap[motion_index][area_index][i] >= 0]))
         return info_str
+
+    def write_eval_txt(self):
+        imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '_eval.txt')
+        with open(imageset_file, 'w') as f:
+            for i in range(len(self.pattern)):
+                for j in range(self.frame_seg_len[i]):
+                    f.write((self.pattern[i] % (self.frame_seg_id[i] + j)) + ' ' + str(self.frame_id[i] + j) + '\n')
+        return imageset_file
