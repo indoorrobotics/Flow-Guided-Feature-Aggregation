@@ -51,6 +51,7 @@ from utils.create_logger import create_logger
 def main():
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     output_dir = "/tmp/res"
+    os.mkdir(output_dir)
     print args
 
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.test_image_set)
@@ -68,8 +69,8 @@ def main():
                       ctx, join(final_output_path, '..', '_'.join([iset for iset in config.dataset.image_set.split('+')]), config.TRAIN.model_prefix), epoc,
                       args.vis, args.ignore_cache, args.shuffle, config.TEST.HAS_RPN, config.dataset.proposal, args.thresh, logger=logger, output_path=final_output_path,
                       enable_detailed_eval=config.dataset.enable_detailed_eval)
-        with open(join(output_dir, file_name), "a") as f:
-            f.write('epoc: %s res: %s' % (res, epoc))
+            with open(join(output_dir, file_name), "a") as f:
+                f.write('epoc: %s res: %s \n' % (res, epoc))
         maps.append(res)
         print maps
 

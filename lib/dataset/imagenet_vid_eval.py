@@ -351,14 +351,7 @@ def vid_eval2(multifiles, detpath, annopath, imageset_file, classname_map, annoc
 
 
     # Plot Precision x Recall curve
-    detections = evaluator.PlotPrecisionRecallCurve(
-        allBoundingBoxes,  # Object containing all bounding boxes (ground truths and detections)
-        IOUThreshold=0.5,  # IOU threshold
-        method=MethodAveragePrecision.EveryPointInterpolation,
-        showAP=True,  # Show Average Precision in the title of the plot
-        showInterpolatedPrecision=False,  # Don't plot the interpolated precision curve
-        savePath="/tmp",
-        showGraphic=False)
+    detections = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
 
     aps = list(map(lambda x: x["AP"], detections))
     return aps

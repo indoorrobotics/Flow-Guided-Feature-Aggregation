@@ -48,7 +48,7 @@ from lib.dataset.data_loader import DataLoader
 def parse_args():
     parser = argparse.ArgumentParser(description='Show Flow-Guided Feature Aggregation demo')
     parser.add_argument("input", help="display input", type=str)
-    parser.add_argument("--epoc", default=4, type=int)
+    parser.add_argument("--epoc", default=30, type=int)
     parser.add_argument("--threshold", default=0.5, type=float)
     parser.add_argument("--dataset", default="jrdb_real")
     args = parser.parse_args()
@@ -114,7 +114,7 @@ def main():
 
     classes = ['__background__', 'p']
     num_classes = len(classes)
-    data_loader = DataLoader(args.input + '/*', cfg, max_len=100)
+    data_loader = DataLoader(args.input + '/*', cfg)
 
     #line = '%s %s %s %s\n' % (dire.replace(join(join(data_dir, ANNOTATIONS, VID)) + "/", ""), '1', str(i), str(num_of_images))
     output_dir_tmp = '%s_%s_epoc_%d' % (args.dataset, os.path.basename(args.input), args.epoc)
@@ -254,10 +254,6 @@ def main():
             save_image(output_dir, idx, out_im)
 
     print 'done'
-
-
-
-
 
 if __name__ == '__main__':
     main()
