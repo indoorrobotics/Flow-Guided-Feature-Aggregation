@@ -38,6 +38,7 @@ def parse_args():
     parser.add_argument('--thresh', help='valid detection threshold', default=1e-3, type=float)
     parser.add_argument('--shuffle', help='shuffle data on visualization', action='store_true')
     args = parser.parse_args()
+    parser.add_argument('--epoc', help='epoc', default=-1, type=int)
     return args
 
 args = parse_args()
@@ -48,6 +49,8 @@ import mxnet as mx
 from function.test_rcnn import test_rcnn
 from utils.create_logger import create_logger
 
+epoc = args.epoc
+print("Epoc", epoc)
 def main():
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     output_dir = "/tmp/res"
@@ -57,30 +60,30 @@ def main():
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.test_image_set)
 
     sets = "/media/indoordesk/653ce34c-0c14-4427-8029-be7afe6d1989/test_sets/ImageSets"
-    for epoc in range(1, 30):
+    #for epoc in range(1, 30):
 
-        maps = []
+    maps = []
 
-        #for epoc in range(1, 30):
-        for file_name in os.listdir(sets):
-            if "_eval" in file_name:
-                continue
+    #for epoc in range(1, 30):
+    for file_name in os.listdir(sets):
+        if "_eval" in file_name:
+            continue
 
 
-            logger.info("About to test with images:" + file_name)
-            print ("About to test with images:" + file_name)
-            try:
-                res = test_rcnn(config, config.dataset.dataset, file_name.replace(".txt", ""), config.dataset.root_path, config.dataset.dataset_path, config.dataset.motion_iou_path,
-                          ctx, join(final_output_path, '..', '_'.join([iset for iset in config.dataset.image_set.split('+')]), config.TRAIN.model_prefix), epoc,
-                          args.vis, args.ignore_cache, args.shuffle, config.TEST.HAS_RPN, config.dataset.proposal, args.thresh, logger=logger, output_path=final_output_path,
-                          enable_detailed_eval=config.dataset.enable_detailed_eval)
-                with open(join(output_dir, file_name), "a") as f:
-                    f.write('epoc: %s res: %s \n' % (epoc, res))
-            except Exception as e:
-                logger.error(e)
-                print e
+        logger.info("About to test with images:" + file_name)
+        print ("About to test with images:" + file_name)
+        try:
+            res = test_rcnn(config, config.dataset.dataset, file_name.replace(".txt", ""), config.dataset.root_path, config.dataset.dataset_path, config.dataset.motion_iou_path,
+                      ctx, join(final_output_path, '..', '_'.join([iset for iset in config.dataset.image_set.split('+')]), config.TRAIN.model_prefix), epoc,
+                      args.vis, args.ignore_cache, args.shuffle, config.TEST.HAS_RPN, config.dataset.proposal, args.thresh, logger=logger, output_path=final_output_path,
+                      enable_detailed_eval=config.dataset.enable_detailed_eval)
+            with open(join(output_dir, file_name), "a") as f:
+                f.write('epoc: %s res: %s \n' % (epoc, res))
+        except Exception as e:
+            logger.error(e)
+            print e
 
-        print maps
+    print maps
 
 if __name__ == '__main__':
     main()
