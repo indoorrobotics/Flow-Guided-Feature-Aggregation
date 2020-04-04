@@ -54,7 +54,9 @@ print("Epoc", epoc)
 def main():
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     output_dir = "/tmp/res"
-    os.mkdir(output_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
     print args
 
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.test_image_set)
