@@ -37,8 +37,8 @@ def parse_args():
     parser.add_argument('--ignore_cache', help='ignore cached results boxes', action='store_true')
     parser.add_argument('--thresh', help='valid detection threshold', default=1e-3, type=float)
     parser.add_argument('--shuffle', help='shuffle data on visualization', action='store_true')
-    args = parser.parse_args()
     parser.add_argument('--epoc', help='epoc', default=-1, type=int)
+    args = parser.parse_args()
     return args
 
 args = parse_args()
@@ -62,6 +62,7 @@ def main():
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.test_image_set)
 
     sets = "/media/indoordesk/653ce34c-0c14-4427-8029-be7afe6d1989/test_sets/ImageSets"
+    sets = "/data2/test_sets/ImageSets"
     #for epoc in range(1, 30):
 
     maps = []
